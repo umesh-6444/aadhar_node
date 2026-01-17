@@ -3,6 +3,6 @@ import { getAadharList } from "./aadharcontroller.js";
 
 const router = express.Router();
 
-router.get("/", getAadharList);
+router.post("/search", getAadharList);
 
 export default router;

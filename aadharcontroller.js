@@ -2,7 +2,7 @@ import { db } from "./db.js";
 
 export const getAadharList = async (req, res) => {
   try {
-    const { state, city, gender, dob, aadhar_number } = req.query;
+    const { state, city, gender, dob, aadhar_number } = req.body;
 
     let sql = `
       SELECT 
@@ -42,16 +42,32 @@ export const getAadharList = async (req, res) => {
       params.push(city);
     }
 
-    sql += " LIMIT 100";
-
     const [rows] = await db.execute(sql, params);
 
-    res.json({
-      total: rows.length,
-      data: rows,
+    const data = rows.map((r) => ({
+      aadharNumber: r.aadhar_number,
+      name: {
+        first: r.first_name,
+        last: r.last_name,
+      },
+      gender: r.gender,
+      dob: r.dob,
+      location: {
+        state: r.state_name,
+        city: r.city_name,
+      },
+    }));
+
+    res.status(200).json({
+      success: true,
+      totalRecords: data.length,
+      data,
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server Error" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };
